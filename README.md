@@ -1,3 +1,3 @@
 # Skystore
 Django проект для курса
-# доработка
+echo "# Добавлен комментарий для Pull Request" >> README.md

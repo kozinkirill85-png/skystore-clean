@@ -1,6 +1,8 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404
 from .models import BlogPost
+from django.contrib import messages
 
 
 class BlogListView(ListView):
@@ -8,10 +10,11 @@ class BlogListView(ListView):
     model = BlogPost
     template_name = 'blog/blog_list.html'
     context_object_name = 'posts'
+    paginate_by = 5  # Добавляем пагинацию
 
     def get_queryset(self):
         """Выводим только опубликованные статьи"""
-        return BlogPost.objects.filter(is_published=True)
+        return BlogPost.objects.filter(is_published=True).order_by('-created_at')
 
 
 class BlogDetailView(DetailView):
@@ -33,7 +36,15 @@ class BlogCreateView(CreateView):
     model = BlogPost
     template_name = 'blog/blog_form.html'
     fields = ['title', 'content', 'preview', 'is_published']
-    success_url = reverse_lazy('blog:blog_list')
+
+    def form_valid(self, form):
+        """Добавление сообщения об успешном создании статьи"""
+        messages.success(self.request, "Статья успешно создана!")
+        return superform_valid(form)
+
+    def get_success_url(self):
+        """Перенаправление на детальную страницу созданной статьи"""
+        return reverse('blog:blog_detail', kwargs={'pk': self.object.pk})
 
 
 class BlogUpdateView(UpdateView):
@@ -41,7 +52,15 @@ class BlogUpdateView(UpdateView):
     model = BlogPost
     template_name = 'blog/blog_form.html'
     fields = ['title', 'content', 'preview', 'is_published']
-    success_url = reverse_lazy('blog:blog_list')
+
+    def form_valid(self, form):
+        """Добавление сообщения об успешном обновлении статьи"""
+        messages.success(self.request, "Статья успешно обновлена!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        """Перенаправление на детальную страницу отредактированной статьи"""
+        return reverse('blog:blog_detail', kwargs={'pk': self.object.pk})
 
 
 class BlogDeleteView(DeleteView):
@@ -49,3 +68,9 @@ class BlogDeleteView(DeleteView):
     model = BlogPost
     template_name = 'blog/blog_confirm_delete.html'
     success_url = reverse_lazy('blog:blog_list')
+
+    def delete(self, request, *args, **kwargs):
+        """Добавление сообщения об успешном удалении статьи"""
+        obj = self.get_object()
+        messages.success(self.request, f"Статья '{obj.title}' успешно удалена!")
+        return super().delete(request, *args, **kwargs)

@@ -40,7 +40,7 @@ class BlogCreateView(CreateView):
     def form_valid(self, form):
         """Добавление сообщения об успешном создании статьи"""
         messages.success(self.request, "Статья успешно создана!")
-        return superform_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         """Перенаправление на детальную страницу созданной статьи"""

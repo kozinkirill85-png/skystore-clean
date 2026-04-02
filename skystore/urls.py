@@ -6,7 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('catalog.urls')),
-    path('blogs/', include('blog.urls')),  # ← Убедитесь, что здесь есть слэш в конце
+    path('blogs/', include('blog.urls')),
+    path('users/', include('users.urls')),  # ← Добавьте эту строку
 ]
 
 if settings.DEBUG:

@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog',
     'blog',
-
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +136,14 @@ if DEBUG:
 
     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
     urlpatterns += staticfiles_urlpatterns()
+AUTH_USER_MODEL = 'users.User'
+# Настройки почтового сервера
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Или другой почтовый сервер
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your_email@gmail.com'  # Ваша почта
+EMAIL_HOST_PASSWORD = 'your_password'  # Ваш пароль или приложение пароль
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Для тестирования используйте консольный бэкенд
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

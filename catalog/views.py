@@ -2,6 +2,11 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy, reverse
 from .models import Product
 from .forms import ProductForm  # ← Импортируем форму
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy, reverse
+from .models import Product
+from .forms import ProductForm
 
 
 class HomeView(ListView):
@@ -15,13 +20,6 @@ class ContactsView(TemplateView):
     """Страница контактов"""
     template_name = 'catalog/contacts.html'
 
-    def post(self, request, *args, **kwargs):
-        name = request.POST.get('name')
-        phone = request.POST.get('phone')
-        message = request.POST.get('message')
-        print(f"Получено сообщение от {name}: {message}")
-        return self.render_to_response(self.get_context_data())
-
 
 class ProductDetailView(DetailView):
     """Страница одного товара"""
@@ -30,8 +28,8 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
 
 
-class ProductCreateView(CreateView):
-    """Создание продукта"""
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    """Создание продукта (только для авторизованных)"""
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
@@ -41,8 +39,8 @@ class ProductCreateView(CreateView):
         return reverse('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class ProductUpdateView(UpdateView):
-    """Редактирование продукта"""
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    """Редактирование продукта (только для авторизованных)"""
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
@@ -52,8 +50,8 @@ class ProductUpdateView(UpdateView):
         return reverse('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class ProductDeleteView(DeleteView):
-    """Удаление продукта"""
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление продукта (только для авторизованных)"""
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:home')

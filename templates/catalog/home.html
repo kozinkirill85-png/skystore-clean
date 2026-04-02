@@ -6,6 +6,10 @@
     <h1>Добро пожаловать в Skystore</h1>
     <p>Наш ассортимент товаров:</p>
 
+    <a href="{% url 'catalog:product_create' %}" class="btn btn-primary mb-3">
+        + Добавить продукт
+    </a>
+
     <div class="row">
         {% for product in products %}
             <div class="col-md-4 mb-4">
@@ -17,7 +21,9 @@
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">{{ product.description|truncatechars:100 }}</p>
                         <p class="card-text"><strong>Цена:</strong> {{ product.price }} руб.</p>
-                        <a href="{% url 'product_detail' product.pk %}" class="btn btn-primary">Подробнее</a>
+                        <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-primary">Подробнее</a>
+                        <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
+                        <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
                     </div>
                 </div>
             </div>

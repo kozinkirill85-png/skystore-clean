@@ -1,75 +1,59 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy, reverse
-from django.contrib import messages
-from .models import BlogPost  # Правильный импорт модели
+from .models import Product
+from .forms import ProductForm  # ← Импортируем форму
 
 
-class BlogListView(ListView):
-    """Список блоговых записей"""
-    model = BlogPost
-    template_name = 'blog/blog_list.html'
-    context_object_name = 'posts'
-    paginate_by = 5
-
-    def get_queryset(self):
-        """Выводим только опубликованные статьи"""
-        return BlogPost.objects.filter(is_published=True).order_by('-created_at')
+class HomeView(ListView):
+    """Главная страница"""
+    model = Product
+    template_name = 'catalog/home.html'
+    context_object_name = 'products'
 
 
-class BlogDetailView(DetailView):
-    """Детальная страница блоговой записи"""
-    model = BlogPost
-    template_name = 'blog/blog_detail.html'
-    context_object_name = 'post'
+class ContactsView(TemplateView):
+    """Страница контактов"""
+    template_name = 'catalog/contacts.html'
 
-    def get_object(self, queryset=None):
-        """Увеличиваем счетчик просмотров"""
-        obj = super().get_object(queryset)
-        obj.views_count += 1
-        obj.save()
-        return obj
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        message = request.POST.get('message')
+        print(f"Получено сообщение от {name}: {message}")
+        return self.render_to_response(self.get_context_data())
 
 
-class BlogCreateView(CreateView):
-    """Создание блоговой записи"""
-    model = BlogPost
-    template_name = 'blog/blog_form.html'
-    fields = ['title', 'content', 'preview', 'is_published']
+class ProductDetailView(DetailView):
+    """Страница одного товара"""
+    model = Product
+    template_name = 'catalog/product_detail.html'
+    context_object_name = 'product'
 
-    def form_valid(self, form):
-        """Добавление сообщения об успешном создании статьи"""
-        messages.success(self.request, "Статья успешно создана!")
-        return super().form_valid(form)
+
+class ProductCreateView(CreateView):
+    """Создание продукта"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
 
     def get_success_url(self):
-        """Перенаправление на детальную страницу созданной статьи"""
-        return reverse('blog:blog_detail', kwargs={'pk': self.object.pk})
+        """Перенаправление на детальную страницу созданного продукта"""
+        return reverse('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class BlogUpdateView(UpdateView):
-    """Редактирование блоговой записи"""
-    model = BlogPost
-    template_name = 'blog/blog_form.html'
-    fields = ['title', 'content', 'preview', 'is_published']
-
-    def form_valid(self, form):
-        """Добавление сообщения об успешном обновлении статьи"""
-        messages.success(self.request, "Статья успешно обновлена!")
-        return super().form_valid(form)
+class ProductUpdateView(UpdateView):
+    """Редактирование продукта"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
 
     def get_success_url(self):
-        """Перенаправление на детальную страницу отредактированной статьи"""
-        return reverse('blog:blog_detail', kwargs={'pk': self.object.pk})
+        """Перенаправление на детальную страницу отредактированного продукта"""
+        return reverse('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class BlogDeleteView(DeleteView):
-    """Удаление блоговой записи"""
-    model = BlogPost
-    template_name = 'blog/blog_confirm_delete.html'
-    success_url = reverse_lazy('blog:blog_list')
-
-    def delete(self, request, *args, **kwargs):
-        """Добавление сообщения об успешном удалении статьи"""
-        obj = self.get_object()
-        messages.success(self.request, f"Статья '{obj.title}' успешно удалена!")
-        return super().delete(request, *args, **kwargs)
+class ProductDeleteView(DeleteView):
+    """Удаление продукта"""
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = reverse_lazy('catalog:home')

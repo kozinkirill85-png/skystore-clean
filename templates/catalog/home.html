@@ -6,9 +6,11 @@
     <h1>Добро пожаловать в Skystore</h1>
     <p>Наш ассортимент товаров:</p>
 
-    <a href="{% url 'catalog:product_create' %}" class="btn btn-primary mb-3">
-        + Добавить продукт
-    </a>
+    {% if user.is_authenticated %}
+        <a href="{% url 'catalog:product_create' %}" class="btn btn-primary mb-3">
+            + Добавить продукт
+        </a>
+    {% endif %}
 
     <div class="row">
         {% for product in products %}
@@ -22,8 +24,18 @@
                         <p class="card-text">{{ product.description|truncatechars:100 }}</p>
                         <p class="card-text"><strong>Цена:</strong> {{ product.price }} руб.</p>
                         <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-primary">Подробнее</a>
-                        <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
-                        <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+
+                        {% if user.is_authenticated %}
+                            {% if product.owner == user %}
+                                <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
+                                <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+                            {% elif user.has_perm 'catalog.can_unpublish_product' %}
+                                <form method="post" action="{% url 'catalog:product_unpublish' product.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary">Отменить публикацию</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

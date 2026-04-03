@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.views import LoginView, LogoutView
@@ -5,6 +6,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import UserRegisterForm
 from .models import User
+
 
 
 class RegisterView(CreateView):

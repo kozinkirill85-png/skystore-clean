@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -66,14 +67,26 @@ class Product(models.Model):
         verbose_name=_('Дата последнего изменения'),
         help_text=_('Дата последнего изменения продукта')
     )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name=_('Опубликован'),
+        help_text=_('Отметьте, если продукт опубликован')
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('Владелец'),
+        help_text=_('Владелец продукта')
+    )
 
     class Meta:
         verbose_name = _('Продукт')
         verbose_name_plural = _('Продукты')
+        permissions = [
+            ('can_unpublish_product', 'Может отменять публикацию продукта'),
+        ]
 
     def __str__(self):
         return self.name
-
-
-class BlogPost:
-    pass

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Skystore{% endblock %}
+
+{% block content %}
+    <h1>{{ category.name }}</h1>
+
+    {% if category.description %}
+        <p class="lead">{{ category.description }}</p>
+    {% endif %}
+
+    {% if products %}
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                            <p class="card-text"><strong>Цена:</strong> {{ product.price }} руб.</p>
+                            <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-primary">Подробнее</a>
+
+                            {% if user.is_authenticated %}
+                                {% if product.owner == user %}
+                                    <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
+                                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+                                {% elif user.has_perm 'catalog.can_unpublish_product' %}
+                                    <form method="post" action="{% url 'catalog:product_unpublish' product.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-secondary">Отменить публикацию</button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>В этой категории пока нет товаров.</p>
+    {% endif %}
+
+    <a href="{% url 'catalog:home' %}" class="btn btn-primary mt-3">← Вернуться на главную</a>
+{% endblock %}
